@@ -6,11 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -46,6 +42,9 @@ public class DatabaseConfig {
   @Value("${entitymanager.packagesToScan}")
   private String ENTITYMANAGER_PACKAGES_TO_SCAN;
 
+  @Autowired private DataSource dataSource;
+  @Autowired private LocalContainerEntityManagerFactoryBean entityManagerFactory;
+
   @Bean
   public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -59,49 +58,32 @@ public class DatabaseConfig {
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
     LocalContainerEntityManagerFactoryBean entityManagerFactory =
-            new LocalContainerEntityManagerFactoryBean();
-    entityManagerFactory.setPackagesToScan(
-            ENTITYMANAGER_PACKAGES_TO_SCAN);
+        new LocalContainerEntityManagerFactoryBean();
+    entityManagerFactory.setPackagesToScan(ENTITYMANAGER_PACKAGES_TO_SCAN);
     entityManagerFactory.setDataSource(dataSource);
     HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
     entityManagerFactory.setJpaVendorAdapter(vendorAdapter);
 
     // Hibernate properties
     Properties additionalProperties = new Properties();
-    additionalProperties.put(
-            "hibernate.dialect",
-            HIBERNATE_DIALECT);
-    additionalProperties.put(
-            "hibernate.show_sql",
-            HIBERNATE_SHOW_SQL);
-    additionalProperties.put(
-            "hibernate.hbm2ddl.auto",
-            HIBERNATE_HBM2DDL_AUTO);
+    additionalProperties.put("hibernate.dialect", HIBERNATE_DIALECT);
+    additionalProperties.put("hibernate.show_sql", HIBERNATE_SHOW_SQL);
+    additionalProperties.put("hibernate.hbm2ddl.auto", HIBERNATE_HBM2DDL_AUTO);
     entityManagerFactory.setJpaProperties(additionalProperties);
 
     return entityManagerFactory;
   }
 
-  /**
-   * Declare the transaction manager.
-   */
+  /** Declare the transaction manager. */
   @Bean
   public JpaTransactionManager transactionManager() {
-    JpaTransactionManager transactionManager =
-            new JpaTransactionManager();
-    transactionManager.setEntityManagerFactory(
-            entityManagerFactory.getObject());
+    JpaTransactionManager transactionManager = new JpaTransactionManager();
+    transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
     return transactionManager;
   }
+
   @Bean
   public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
     return new PersistenceExceptionTranslationPostProcessor();
   }
-
-  @Autowired
-  private DataSource dataSource;
-
-  @Autowired
-  private LocalContainerEntityManagerFactoryBean entityManagerFactory;
-
 } // class DatabaseConfig

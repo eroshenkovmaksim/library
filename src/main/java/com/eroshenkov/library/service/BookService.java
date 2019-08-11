@@ -1,28 +1,32 @@
 package com.eroshenkov.library.service;
 
-import com.eroshenkov.library.dao.BookRepository;
-import com.eroshenkov.library.model.AbstractEntity;
 import com.eroshenkov.library.model.Book;
+import com.eroshenkov.library.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class BookService extends AbstractService {
+public class BookService{
 
-  @Autowired
-  private BookRepository bookRepository;
+  @Autowired private BookRepository bookRepository;
 
-  public String add(AbstractEntity book) {
-    bookRepository.save((Book) book);
+  public String add(Book book) {
+    bookRepository.save(book);
     return "Book added";
   }
 
-  public Book findById(long bookId) {
-    return bookRepository.findById(bookId).get();
+  public Book findById(long id) {
+    return bookRepository.findById(id).get();
   }
 
   public String deleteById(long id) {
     bookRepository.deleteById(id);
     return "Book deleted";
+  }
+
+  public List<Book> findBooksByName(String name) {
+    return bookRepository.findByName(name);
   }
 }
