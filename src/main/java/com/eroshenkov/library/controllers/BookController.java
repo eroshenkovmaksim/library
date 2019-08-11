@@ -1,42 +1,48 @@
 package com.eroshenkov.library.controllers;
 
-
-import com.eroshenkov.library.domain.Book;
+import com.eroshenkov.library.model.Book;
 import com.eroshenkov.library.service.BookService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping(value="/book")
+@RestController
+@RequestMapping("/book")
 public class BookController {
 
-  @Autowired
-  private BookService bookService;
+  @Autowired private BookService bookService;
 
-  @RequestMapping(value="/get-book-name")
-  @ResponseBody
-  public String getBookNameById(Long id) {
+  @ApiOperation(value = "Get a book by id")
+  @GetMapping(value = "/{id}")
+  public Book getBookById(@PathVariable Long id) {
     try {
-      Book book = bookService.findBook(id);
-      return book.getName();
-    }
-    catch(Exception ex) {
-      return "book not found";
+      return bookService.findById(id);
+    } catch (Exception ex) {
+      return null;
     }
   }
 
-  @RequestMapping(value="/add-book")
-  @ResponseBody
-  public String create(String name, Long authorId) {
+  @ApiOperation(value = "Add a book")
+  @PostMapping(value = "/")
+  public ResponseEntity<String> create(@RequestBody Book book) {
     try {
-      bookService.addBook(name,authorId);
+      bookService.add(book);
+    } catch (Exception ex) {
+      return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
-    catch(Exception ex) {
-      return ex.getMessage();
-    }
-    return "Book successfully saved!";
+    return new ResponseEntity<>("Book added", HttpStatus.OK);
   }
 
+  @ApiOperation(value = "Delete a book by id")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> deleteEmployee(@PathVariable(value = "id") Long bookId) {
+    try {
+      bookService.deleteById(bookId);
+    } catch (Exception ex) {
+      return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>("Book deleted", HttpStatus.OK);
+  }
 }

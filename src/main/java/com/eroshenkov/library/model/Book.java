@@ -1,4 +1,4 @@
-package com.eroshenkov.library.domain;
+package com.eroshenkov.library.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "books")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Book{
+public class Book extends AbstractEntity{
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +24,5 @@ public class Book{
 
   @NotNull
   private Long authorId;
-  public Book(String name, Long authorId) {
-    this.name = name;
-    this.authorId = authorId;
-  }
+
 }
